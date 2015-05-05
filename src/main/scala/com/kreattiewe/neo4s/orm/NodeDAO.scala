@@ -7,6 +7,8 @@ import org.anormcypher.{Cypher, Neo4jREST}
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
+import scala.reflect.runtime.universe.TypeTag
+
 /**
  * Created by michelperez on 4/25/15.
  *
@@ -29,8 +31,8 @@ trait NodeDAO[T <: NeoNode[A], A] {
   def update[T <: NeoNode[A] : Mappable](t: T)(implicit connection: Neo4jREST): Future[Boolean] = {
     val query =
       s"""
-        match (n${t.labelsString()} { id: "${t.id}"})
-        set n = {props}
+        match (n${t.labelsString()} { id: "${t.getId()}"})
+        set n += {props}
         """.stripMargin
     Future {
       Cypher(query).on("props" -> Mapper.caseToMap(t)).execute()
@@ -40,17 +42,21 @@ trait NodeDAO[T <: NeoNode[A], A] {
   /** deletes a node of type T looking for t.id */
   def delete[T <: NeoNode[A]](t: T)(implicit connection: Neo4jREST): Future[Boolean] = {
     val query =
-      s"""match (n${t.labelsString()} { id: "${t.id}"}) delete n""".stripMargin
+      s"""match (n${t.labelsString()} { id: "${t.getId()}"}) delete n""".stripMargin
     Future {
       Cypher(query).execute()
     }
   }
 
   /** returns the first node looked by the id of type A and labels */
-  def findById[T <: NeoNode[A] : Mappable](a: A, labelsOpt: Option[Seq[String]] = None)(implicit connection: Neo4jREST): Future[Option[T]] = {
-    val labels = labelsOpt.getOrElse(Seq[String]()).map(x => ":" + x)
+  def findById[T <: NeoNode[A] : Mappable: TypeTag](a: A, labelsOpt: Option[Seq[String]] = None)(implicit connection: Neo4jREST): Future[Option[T]] = {
+    val labels = labelsOpt.getOrElse(Seq[String]()).map(x => ":" + x).mkString
+    val id = a match {
+      case opt@Some(_id) => _id
+      case _ => a
+    }
     val query =
-      s"""match (n ${labels}{ id: "${a}"}) return n""".stripMargin
+      s"""match (n${labels} { id: "${id}"}) return n""".stripMargin
     Future {
       Cypher(query).as(get[org.anormcypher.NeoNode]("n") *).collectFirst({ case n => n }).map({ case n => Mapper.mapToCase[T](n.props) })
     }

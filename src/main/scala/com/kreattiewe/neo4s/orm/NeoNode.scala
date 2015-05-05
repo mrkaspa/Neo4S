@@ -5,6 +5,14 @@ package com.kreattiewe.neo4s.orm
  *
  * every node must be recognizable through an id
  */
-trait NeoNode[T] extends Labelable{
+trait NeoNode[T] extends Labelable {
   val id: T
+
+  /** Unwraps the id if this comes in Option */
+  def getId() = {
+    id match {
+      case opt@Some(_id) => _id
+      case _ => id
+    }
+  }
 }

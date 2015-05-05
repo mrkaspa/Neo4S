@@ -26,8 +26,8 @@ trait RelDAO[A <: NeoNode[_], B <: NeoNode[_], C <: NeoRel[A, B]] {
   def save[C <: NeoRel[A, B] : Mappable](c: C)(implicit connection: Neo4jREST): Future[Boolean] = {
     val query =
       s"""
-         match (a${c.from.labelsString()}{ id: "${c.from.id}"}),
-         (b${c.to.labelsString()}{ id: "${c.to.id}"})
+         match (a${c.from.labelsString()}{ id: "${c.from.getId()}"}),
+         (b${c.to.labelsString()}{ id: "${c.to.getId()}"})
          create (a)-[c${c.labelsString()} {props}]->(b)
       """.stripMargin
     Future {
@@ -39,10 +39,10 @@ trait RelDAO[A <: NeoNode[_], B <: NeoNode[_], C <: NeoRel[A, B]] {
   def update[C <: NeoRel[A, B] : Mappable](c: C)(implicit connection: Neo4jREST): Future[Boolean] = {
     val query =
       s"""
-         match (a${c.from.labelsString()}{ id: "${c.from.id}"}),
-         (b${c.to.labelsString()}{ id: "${c.to.id}"}),
+         match (a${c.from.labelsString()}{ id: "${c.from.getId()}"}),
+         (b${c.to.labelsString()}{ id: "${c.to.getId()}"}),
          (a)-[c${c.labelsString()}]->(b)
-         set c = {props}
+         set c += {props}
       """.stripMargin
     Future {
       Cypher(query).on("props" -> MapperC.caseToMap(c)).execute()
@@ -53,8 +53,8 @@ trait RelDAO[A <: NeoNode[_], B <: NeoNode[_], C <: NeoRel[A, B]] {
   def delete[C <: NeoRel[A, B] : Mappable](c: C)(implicit connection: Neo4jREST): Future[Boolean] = {
     val query =
       s"""
-         match (a ${c.from.labelsString()}{ id: "${c.from.id}"}),
-         (b ${c.to.labelsString()}{ id: "${c.to.id}"}),
+         match (a ${c.from.labelsString()}{ id: "${c.from.getId()}"}),
+         (b ${c.to.labelsString()}{ id: "${c.to.getId()}"}),
          (a)-[c${c.labelsString()}]->(b)
          delete c
       """.stripMargin
