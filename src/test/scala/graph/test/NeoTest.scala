@@ -6,7 +6,7 @@ import org.scalatest.{BeforeAndAfterAll, BeforeAndAfterEach, FunSpec, MustMatche
 /**
  * Created by michelperez on 4/26/15.
  */
-abstract class NeoTest
+trait NeoTest
   extends FunSpec
   with MustMatchers
   with BeforeAndAfterAll

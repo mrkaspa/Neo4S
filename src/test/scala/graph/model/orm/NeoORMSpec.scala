@@ -12,8 +12,7 @@ import scala.concurrent.Await
 /**
  * Created by michelperez on 4/26/15.
  */
-class NeoORMSpec
-  extends NeoTest {
+class NeoORMSpec extends NeoTest {
 
   describe("NeoDAO") {
 
