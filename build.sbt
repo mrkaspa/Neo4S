@@ -8,7 +8,7 @@ sonatypeProfileName := "com.kreattiewe"
 
 name := """neo4s"""
 
-version := "1.2.0"
+version := "1.2.1"
 
 scalaVersion := "2.11.6"
 
@@ -36,7 +36,7 @@ resolvers ++= Seq(
 libraryDependencies ++= {
   val scalaTestV = "2.2.1"
   Seq(
-    "com.kreattiewe" %% "case-class-mapper" % "1.0",
+    "com.kreattiewe" %% "case-class-mapper" % "1.0.1",
     "org.anormcypher" %% "anormcypher" % "0.6.0",
     "org.scala-lang" % "scala-reflect" % "2.11.6",
     "org.scalatest" %% "scalatest" % scalaTestV % "test"

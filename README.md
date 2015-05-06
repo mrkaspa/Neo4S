@@ -12,7 +12,7 @@ resolvers ++= Seq(
 
 libraryDependencies ++= {
   Seq(
-    "com.kreattiewe" %% "neo4s" % "1.2"  
+    "com.kreattiewe" %% "neo4s" % "1.2.1"  
     )
 }
 
@@ -22,6 +22,10 @@ libraryDependencies ++= {
 Checkout how to use it on the tests directory [here](https://github.com/mrkaspa/Neo4S/blob/master/src/test/scala/graph/model/orm/NeoORMSpec.scala)
 
 #Version
+
+## 1.2.1
+
+- Dependency changes
 
 ## 1.2.0
 
