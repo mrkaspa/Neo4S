@@ -17,13 +17,15 @@ trait Mapper[T] {
   def mapToCase[T: Mappable : TypeTag](map: Map[String, Any]) = {
     val tpe = typeTag[T].tpe
     val optType = typeOf[Option[_]]
-    val optFields = tpe.decls.collectFirst { case m: MethodSymbol if m.isPrimaryConstructor => m }.get.paramLists.head.filter { field =>
-      field.asTerm.info <:< optType
+    map + ("" -> None)
+    val optFields = tpe.decls.collectFirst { case m: MethodSymbol if m.isPrimaryConstructor => m }.get.paramLists.head
+      .filter(_.asTerm.info <:< optType).map(_.asTerm.name.decodedName.toString)
+    val mapWithNones = optFields.foldLeft(map) {
+      (newMap, fieldName) => if (!newMap.contains(fieldName)) newMap + (fieldName -> None) else newMap
     }
-
-    val newMap = map.map {
+    val newMap = mapWithNones.map {
       case (k, v) =>
-        if (optFields.exists { field => field.asTerm.name.decodedName.toString == k }) {
+        if (optFields.exists(_ == k)) {
           val newV = v match {
             case null => None
             case va: BigDecimal => Some(va.toInt)
@@ -44,16 +46,14 @@ trait Mapper[T] {
   /** takes an instance of T and returns the Map */
   def caseToMap[T: Mappable](t: T) = {
     val map = implicitly[Mappable[T]].toMap(t)
-    val mapFiltered = t match {
-      case _: NeoRel[_, _] => map -("to", "from")
-      case _ => map
-    }
-    val mapWithoutOptionals = mapFiltered.map {
+    val mapFiltered = if (t.isInstanceOf[NeoRel[_, _]]) map -("to", "from") else map
+    mapFiltered.filter({
+      case (k, None) => false
+      case _ => true
+    }).map({
       case (k, v@Some(a)) => (k, a)
-      case (k, None) => (k, null)
       case (k, v) => (k, v)
-    }
-    mapWithoutOptionals
+    })
   }
 
 }

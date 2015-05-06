@@ -19,7 +19,7 @@ case class MyRel(from: MyUser, to: MyUser, enabled: Boolean) extends NeoRel[MyUs
 
 object MyRelDAO extends RelDAO[MyUser, MyUser, MyRel]
 
-case class MyUserOpt(id: Option[String], name: String, age: Int) extends NeoNode[Option[String]] {
+case class MyUserOpt(id: Option[String], name: String, age: Option[Int]) extends NeoNode[Option[String]] {
   override val labels: Set[String] = Set("user")
 }
 

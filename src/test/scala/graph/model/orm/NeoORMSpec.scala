@@ -72,13 +72,13 @@ class NeoORMSpec
   describe("NeoDAO with options") {
 
     it("#save") {
-      val saved = Await.result(MyUserOptDAO.save(MyUserOpt(Some("1"), "Michel Perez", 27)), 2 seconds)
+      val saved = Await.result(MyUserOptDAO.save(MyUserOpt(Some("1"), "Michel Perez", None)), 2 seconds)
       saved must be(true)
     }
     describe("After save") {
 
       def withOneNode(testCode: (MyUserOpt) => Any): Unit = {
-        val node1 = MyUserOpt(Some("1"), "Michel Perez", 27)
+        val node1 = MyUserOpt(Some("1"), "Michel Perez", None)
         Await.result(MyUserOptDAO.save(node1), 2 seconds)
         testCode(node1)
       }
