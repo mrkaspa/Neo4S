@@ -23,7 +23,7 @@ Checkout how to use it on the tests directory [here](https://github.com/mrkaspa/
 
 #Version
 
-## 1.2
+## 1.2.0
 
 - Improved support for optional values
 
