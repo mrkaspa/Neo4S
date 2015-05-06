@@ -11,10 +11,10 @@ import scala.reflect.runtime.universe._
  * wraps the [[com.kreattiewe.mapper.macros.Mappable]] to convert case class to maps
  * and vice versa
  */
-trait Mapper[T] {
+abstract class Mapper[T: Mappable : TypeTag] {
 
   /** takes a map and returns the T instance */
-  def mapToCase[T: Mappable : TypeTag](map: Map[String, Any]) = {
+  def mapToCase(map: Map[String, Any]) = {
     val tpe = typeTag[T].tpe
     val optType = typeOf[Option[_]]
     map + ("" -> None)
@@ -44,7 +44,7 @@ trait Mapper[T] {
   }
 
   /** takes an instance of T and returns the Map */
-  def caseToMap[T: Mappable](t: T) = {
+  def caseToMap(t: T) = {
     val map = implicitly[Mappable[T]].toMap(t)
     val mapFiltered = if (t.isInstanceOf[NeoRel[_, _]]) map -("to", "from") else map
     mapFiltered.filter({
@@ -55,5 +55,11 @@ trait Mapper[T] {
       case (k, v) => (k, v)
     })
   }
+
+}
+
+object Mapper {
+
+  def build[T : Mappable: TypeTag]: Mapper[T] = new Mapper[T] {}
 
 }

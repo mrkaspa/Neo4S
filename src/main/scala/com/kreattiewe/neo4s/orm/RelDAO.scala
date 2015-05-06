@@ -1,6 +1,5 @@
 package com.kreattiewe.neo4s.orm
 
-import com.kreattiewe.mapper.macros.Mappable
 import org.anormcypher.{Cypher, Neo4jREST}
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -14,16 +13,11 @@ import scala.concurrent.Future
  * B = Node Destitny
  * C = Rel
  **/
-trait RelDAO[A <: NeoNode[_], B <: NeoNode[_], C <: NeoRel[A, B]] {
-
-  object MapperA extends Mapper[A]
-
-  object MapperB extends Mapper[B]
-
-  object MapperC extends Mapper[C]
+abstract class RelDAO[A <: NeoNode[_] : Mapper, B <: NeoNode[_] : Mapper, C <: NeoRel[A, B] : Mapper]
+(implicit val MapperA: Mapper[A], implicit val MapperB: Mapper[B], implicit val MapperC: Mapper[C]) {
 
   /** saves a relationship of type C between A and B */
-  def save[C <: NeoRel[A, B] : Mappable](c: C)(implicit connection: Neo4jREST): Future[Boolean] = {
+  def save(c: C)(implicit connection: Neo4jREST): Future[Boolean] = {
     val query =
       s"""
          match (a${c.from.labelsString()}{ id: "${c.from.getId()}"}),
@@ -36,7 +30,7 @@ trait RelDAO[A <: NeoNode[_], B <: NeoNode[_], C <: NeoRel[A, B]] {
   }
 
   /** updates the relationship of type C */
-  def update[C <: NeoRel[A, B] : Mappable](c: C)(implicit connection: Neo4jREST): Future[Boolean] = {
+  def update(c: C)(implicit connection: Neo4jREST): Future[Boolean] = {
     val query =
       s"""
          match (a${c.from.labelsString()}{ id: "${c.from.getId()}"}),
@@ -50,7 +44,7 @@ trait RelDAO[A <: NeoNode[_], B <: NeoNode[_], C <: NeoRel[A, B]] {
   }
 
   /** deletes the relationship of type C */
-  def delete[C <: NeoRel[A, B] : Mappable](c: C)(implicit connection: Neo4jREST): Future[Boolean] = {
+  def delete(c: C)(implicit connection: Neo4jREST): Future[Boolean] = {
     val query =
       s"""
          match (a ${c.from.labelsString()}{ id: "${c.from.getId()}"}),

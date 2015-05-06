@@ -1,12 +1,10 @@
 package com.kreattiewe.neo4s.orm
 
-import com.kreattiewe.mapper.macros.Mappable
-import org.anormcypher.{Neo4jREST, Cypher}
 import org.anormcypher.CypherParser._
-import scala.concurrent.ExecutionContext.Implicits.global
+import org.anormcypher.{Cypher, Neo4jREST}
 
+import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
-import scala.reflect.runtime.universe.TypeTag
 
 /**
  * Created by michelperez on 4/29/15.
@@ -16,39 +14,44 @@ import scala.reflect.runtime.universe.TypeTag
 object NeoQuery {
 
   /** parses the results from a list of NeoNodes to a list of A */
-  def transform[A: Mappable : TypeTag](res: List[org.anormcypher.NeoNode]): List[A] = {
-    object Mapper extends Mapper[A]
-    res.map({ case n => Mapper.mapToCase[A](n.props) })
+  def transform[A <: NeoNode[_]](res: List[org.anormcypher.NeoNode], Mapper: Mapper[A]): List[A] = {
+    res.map({ case n => Mapper.mapToCase(n.props) })
+  }
+
+  /** parses the results from a list of NeoNodes to a list of A */
+  def transform[A <: NeoNode[_] : Mapper](res: List[org.anormcypher.NeoNode])(implicit Mapper: Mapper[A]): List[A] = {
+    transform(res, Mapper)
   }
 
   /** parses the results from a list of (NeoNode, NeoNode, NeoRelationship) to a list of C[A,B] */
-  def transform[A <: NeoNode[_] : Mappable : TypeTag, B <: NeoNode[_] : Mappable : TypeTag, C <: NeoRel[A, B] : Mappable : TypeTag](res: List[(org.anormcypher.NeoNode, org.anormcypher.NeoNode, org.anormcypher.NeoRelationship)]): List[C] = {
-    object MapperA extends Mapper[A]
-    object MapperB extends Mapper[B]
-    object MapperC extends Mapper[C]
-
+  def transform[A <: NeoNode[_], B <: NeoNode[_], C <: NeoRel[A, B]](res: List[(org.anormcypher.NeoNode, org.anormcypher.NeoNode, org.anormcypher.NeoRelationship)], MapperA: Mapper[A], MapperB: Mapper[B], MapperC: Mapper[C]): List[C] = {
     res.map({
       case (a, b, c) =>
-        val from = MapperA.mapToCase[A](a.props)
-        val to = MapperB.mapToCase[B](b.props)
+        val from = MapperA.mapToCase(a.props)
+        val to = MapperB.mapToCase(b.props)
         val props = c.props +("to" -> to, "from" -> from)
-        MapperC.mapToCase[C](props)
+        MapperC.mapToCase(props)
     })
   }
 
+  /** parses the results from a list of (NeoNode, NeoNode, NeoRelationship) to a list of C[A,B] */
+  def transform[A <: NeoNode[_] : Mapper, B <: NeoNode[_] : Mapper, C <: NeoRel[A, B] : Mapper](res: List[(org.anormcypher.NeoNode, org.anormcypher.NeoNode, org.anormcypher.NeoRelationship)])(implicit MapperA: Mapper[A], MapperB: Mapper[B], MapperC: Mapper[C]): List[C] = {
+    transform(res, MapperA, MapperB, MapperC)
+  }
+
   /** Execute a query that returns a List[A] */
-  def executeQuery[A: Mappable : TypeTag](query: String)(implicit connection: Neo4jREST): Future[List[A]] = {
+  def executeQuery[A <: NeoNode[_] : Mapper](query: String)(implicit connection: Neo4jREST, Mapper: Mapper[A]): Future[List[A]] = {
     Future {
       val res = Cypher(query).as(get[org.anormcypher.NeoNode]("a") *)
-      transform[A](res)
+      transform(res, Mapper)
     }
   }
 
   /** Execute a query that returns a List[A] */
-  def executeQuery[A <: NeoNode[_] : Mappable : TypeTag, B <: NeoNode[_] : Mappable : TypeTag, C <: NeoRel[A, B] : Mappable : TypeTag](query: String)(implicit connection: Neo4jREST): Future[List[C]] = {
+  def executeQuery[A <: NeoNode[_] : Mapper, B <: NeoNode[_] : Mapper, C <: NeoRel[A, B] : Mapper](query: String)(implicit connection: Neo4jREST, MapperA: Mapper[A], MapperB: Mapper[B], MapperC: Mapper[C]): Future[List[C]] = {
     Future {
       val res = Cypher(query).as(get[org.anormcypher.NeoNode]("a") ~ get[org.anormcypher.NeoNode]("b") ~ get[org.anormcypher.NeoRelationship]("c") *).map(flatten)
-      transform[A, B, C](res)
+      transform(res, MapperA, MapperB, MapperC)
     }
   }
 

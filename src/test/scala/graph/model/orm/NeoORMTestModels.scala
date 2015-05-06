@@ -1,10 +1,19 @@
 package graph.model.orm
 
-import com.kreattiewe.neo4s.orm.{RelDAO, NeoRel, NodeDAO, NeoNode}
+import com.kreattiewe.neo4s.orm._
+import com.kreattiewe.mapper.macros.Mappable
 
 /**
  * Created by michelperez on 4/26/15.
  */
+object UserMappers {
+  implicit val myUserMapper = Mapper.build[MyUser]
+  implicit val myUserOptMapper = Mapper.build[MyUserOpt]
+  implicit val myUserExpMapper = Mapper.build[MyUserExp]
+  implicit val myRelMapper = Mapper.build[MyRel]
+}
+
+import UserMappers._
 
 case class MyUser(id: String, name: String, age: Int) extends NeoNode[String] {
   override val labels: Set[String] = Set("user")

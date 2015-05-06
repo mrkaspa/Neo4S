@@ -5,9 +5,9 @@ import graph.test.NeoTest
 import org.anormcypher.Cypher
 import org.anormcypher.CypherParser._
 import scala.concurrent.duration._
-import com.kreattiewe.mapper.macros.Mappable
 
 import scala.concurrent.Await
+import UserMappers._
 
 /**
  * Created by michelperez on 4/26/15.
@@ -32,7 +32,7 @@ class NeoORMSpec extends NeoTest {
 
       it("#findById") {
         withOneNode { (node) =>
-          val user = Await.result(MyUserDAO.findById[MyUser]("1"), 5 seconds)
+          val user = Await.result(MyUserDAO.findById("1"), 5 seconds)
           user.isInstanceOf[Some[MyUser]] must be(true)
         }
       }
@@ -51,7 +51,7 @@ class NeoORMSpec extends NeoTest {
       it("#update") {
         withOneNode { (node) =>
           Await.result(MyUserDAO.update(node.copy(name = "Michel Perez Puentes")), 2 seconds)
-          val user = Await.result(MyUserDAO.findById[MyUser]("1"), 5 seconds)
+          val user = Await.result(MyUserDAO.findById("1"), 5 seconds)
           user.get.name must be("Michel Perez Puentes")
         }
       }
@@ -59,7 +59,7 @@ class NeoORMSpec extends NeoTest {
       it("#delete") {
         withOneNode { (node) =>
           Await.result(MyUserDAO.delete(node), 2 seconds)
-          val userQuery = Await.result(MyUserDAO.findById[MyUser]("1"), 5 seconds)
+          val userQuery = Await.result(MyUserDAO.findById("1"), 5 seconds)
           userQuery must be(None)
         }
       }
@@ -84,7 +84,7 @@ class NeoORMSpec extends NeoTest {
 
       it("#findById") {
         withOneNode { (node) =>
-          val user = Await.result(MyUserOptDAO.findById[MyUserOpt](Some("1")), 5 seconds)
+          val user = Await.result(MyUserOptDAO.findById(Some("1")), 5 seconds)
           user.isInstanceOf[Some[MyUserOpt]] must be(true)
         }
       }
@@ -169,9 +169,9 @@ class NeoORMSpec extends NeoTest {
       Await.result(MyUserDAO.save(user), 2 seconds)
       val saved = Await.result(MyUserExpDAO.update(userExp), 2 seconds)
       saved must be(true)
-      val userFound = Await.result(MyUserDAO.findById[MyUser]("1"), 5 seconds)
+      val userFound = Await.result(MyUserDAO.findById("1"), 5 seconds)
       userFound.isInstanceOf[Some[MyUser]] must be(true)
-      val userFoundExp = Await.result(MyUserDAO.findById[MyUserExp]("1"), 5 seconds)
+      val userFoundExp = Await.result(MyUserDAO.findById("1"), 5 seconds)
       userFoundExp.isInstanceOf[Some[MyUserExp]] must be(true)
     }
 

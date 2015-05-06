@@ -12,7 +12,7 @@ resolvers ++= Seq(
 
 libraryDependencies ++= {
   Seq(
-    "com.kreattiewe" %% "neo4s" % "1.2.1"  
+    "com.kreattiewe" %% "neo4s" % "1.3.0"  
     )
 }
 
@@ -22,6 +22,16 @@ libraryDependencies ++= {
 Checkout how to use it on the tests directory [here](https://github.com/mrkaspa/Neo4S/blob/master/src/test/scala/graph/model/orm/NeoORMSpec.scala)
 
 #Version
+
+## 1.3.1
+
+- Added Mapper companion object to create Mapper[T] [here](https://github.com/mrkaspa/Neo4S/blob/master/src/test/scala/graph/model/orm/NeoORMTestModels.scala)
+
+
+## 1.3.0
+
+- Simplified types for the Main classes NodeDAO, RelDAO, NeoQuery
+- Check how to define the models and the DAOs [here](https://github.com/mrkaspa/Neo4S/blob/master/src/test/scala/graph/model/orm/NeoORMTestModels.scala)
 
 ## 1.2.1
 
