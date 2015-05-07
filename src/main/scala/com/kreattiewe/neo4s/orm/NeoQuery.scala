@@ -3,8 +3,7 @@ package com.kreattiewe.neo4s.orm
 import org.anormcypher.CypherParser._
 import org.anormcypher.{Cypher, Neo4jREST}
 
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 /**
  * Created by michelperez on 4/29/15.
@@ -40,7 +39,7 @@ object NeoQuery {
   }
 
   /** Execute a query that returns a List[A] */
-  def executeQuery[A <: NeoNode[_] : Mapper](query: String)(implicit connection: Neo4jREST, Mapper: Mapper[A]): Future[List[A]] = {
+  def executeQuery[A <: NeoNode[_] : Mapper](query: String)(implicit connection: Neo4jREST, Mapper: Mapper[A], ec: ExecutionContext): Future[List[A]] = {
     Future {
       val res = Cypher(query).as(get[org.anormcypher.NeoNode]("a") *)
       transform(res, Mapper)
@@ -48,7 +47,7 @@ object NeoQuery {
   }
 
   /** Execute a query that returns a List[A] */
-  def executeQuery[A <: NeoNode[_] : Mapper, B <: NeoNode[_] : Mapper, C <: NeoRel[A, B] : Mapper](query: String)(implicit connection: Neo4jREST, MapperA: Mapper[A], MapperB: Mapper[B], MapperC: Mapper[C]): Future[List[C]] = {
+  def executeQuery[A <: NeoNode[_] : Mapper, B <: NeoNode[_] : Mapper, C <: NeoRel[A, B] : Mapper](query: String)(implicit connection: Neo4jREST, MapperA: Mapper[A], MapperB: Mapper[B], MapperC: Mapper[C], ec: ExecutionContext): Future[List[C]] = {
     Future {
       val res = Cypher(query).as(get[org.anormcypher.NeoNode]("a") ~ get[org.anormcypher.NeoNode]("b") ~ get[org.anormcypher.NeoRelationship]("c") *).map(flatten)
       transform(res, MapperA, MapperB, MapperC)

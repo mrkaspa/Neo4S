@@ -2,8 +2,7 @@ package com.kreattiewe.neo4s.orm
 
 import org.anormcypher.{Cypher, Neo4jREST}
 
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 /**
  * Created by michelperez on 4/29/15.
@@ -17,7 +16,7 @@ abstract class RelDAO[A <: NeoNode[_] : Mapper, B <: NeoNode[_] : Mapper, C <: N
 (implicit val MapperA: Mapper[A], implicit val MapperB: Mapper[B], implicit val MapperC: Mapper[C]) {
 
   /** saves a relationship of type C between A and B */
-  def save(c: C)(implicit connection: Neo4jREST): Future[Boolean] = {
+  def save(c: C)(implicit connection: Neo4jREST, ec: ExecutionContext): Future[Boolean] = {
     val query =
       s"""
          match (a${c.from.labelsString()}{ id: "${c.from.getId()}"}),
@@ -30,7 +29,7 @@ abstract class RelDAO[A <: NeoNode[_] : Mapper, B <: NeoNode[_] : Mapper, C <: N
   }
 
   /** updates the relationship of type C */
-  def update(c: C)(implicit connection: Neo4jREST): Future[Boolean] = {
+  def update(c: C)(implicit connection: Neo4jREST, ec: ExecutionContext): Future[Boolean] = {
     val query =
       s"""
          match (a${c.from.labelsString()}{ id: "${c.from.getId()}"}),
@@ -44,7 +43,7 @@ abstract class RelDAO[A <: NeoNode[_] : Mapper, B <: NeoNode[_] : Mapper, C <: N
   }
 
   /** deletes the relationship of type C */
-  def delete(c: C)(implicit connection: Neo4jREST): Future[Boolean] = {
+  def delete(c: C)(implicit connection: Neo4jREST, ec: ExecutionContext): Future[Boolean] = {
     val query =
       s"""
          match (a ${c.from.labelsString()}{ id: "${c.from.getId()}"}),

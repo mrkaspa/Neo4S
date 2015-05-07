@@ -8,6 +8,7 @@ import scala.concurrent.duration._
 
 import scala.concurrent.Await
 import UserMappers._
+import scala.concurrent.ExecutionContext.Implicits.global
 
 /**
  * Created by michelperez on 4/26/15.
