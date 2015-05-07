@@ -19,9 +19,9 @@ abstract class RelDAO[A <: NeoNode[_] : Mapper, B <: NeoNode[_] : Mapper, C <: N
   def save(c: C)(implicit connection: Neo4jREST, ec: ExecutionContext): Future[Boolean] = {
     val query =
       s"""
-         match (a${c.from.labelsString()}{ id: "${c.from.getId()}"}),
-         (b${c.to.labelsString()}{ id: "${c.to.getId()}"})
-         create (a)-[c${c.labelsString()} {props}]->(b)
+         match (a:${c.from.label}{ id: "${c.from.getId()}"}),
+         (b:${c.to.label}{ id: "${c.to.getId()}"})
+         create (a)-[c:${c.label} {props}]->(b)
       """.stripMargin
     Future {
       Cypher(query).on("props" -> MapperC.caseToMap(c)).execute()
@@ -32,9 +32,9 @@ abstract class RelDAO[A <: NeoNode[_] : Mapper, B <: NeoNode[_] : Mapper, C <: N
   def update(c: C)(implicit connection: Neo4jREST, ec: ExecutionContext): Future[Boolean] = {
     val query =
       s"""
-         match (a${c.from.labelsString()}{ id: "${c.from.getId()}"}),
-         (b${c.to.labelsString()}{ id: "${c.to.getId()}"}),
-         (a)-[c${c.labelsString()}]->(b)
+         match (a:${c.from.label}{ id: "${c.from.getId()}"}),
+         (b:${c.to.label}{ id: "${c.to.getId()}"}),
+         (a)-[c:${c.label}]->(b)
          set c += {props}
       """.stripMargin
     Future {
@@ -46,9 +46,9 @@ abstract class RelDAO[A <: NeoNode[_] : Mapper, B <: NeoNode[_] : Mapper, C <: N
   def delete(c: C)(implicit connection: Neo4jREST, ec: ExecutionContext): Future[Boolean] = {
     val query =
       s"""
-         match (a ${c.from.labelsString()}{ id: "${c.from.getId()}"}),
-         (b ${c.to.labelsString()}{ id: "${c.to.getId()}"}),
-         (a)-[c${c.labelsString()}]->(b)
+         match (a:${c.from.label}{ id: "${c.from.getId()}"}),
+         (b:${c.to.label}{ id: "${c.to.getId()}"}),
+         (a)-[c:${c.label}]->(b)
          delete c
       """.stripMargin
     Future {

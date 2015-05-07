@@ -9,11 +9,6 @@ package com.kreattiewe.neo4s.orm
 trait Labelable {
 
   /** set of labels for the node or rel*/
-  val labels: Set[String]
-
-  /** returns the set of labels in a string*/
-  def labelsString(): String = {
-    labels.mkString(":", ":", "")
-  }
+  val label: String
 
 }
