@@ -17,7 +17,6 @@ abstract class Mapper[T: Mappable : TypeTag] {
   def mapToCase(map: Map[String, Any]) = {
     val tpe = typeTag[T].tpe
     val optType = typeOf[Option[_]]
-    map + ("" -> None)
     val optFields = tpe.decls.collectFirst { case m: MethodSymbol if m.isPrimaryConstructor => m }.get.paramLists.head
       .filter(_.asTerm.info <:< optType).map(_.asTerm.name.decodedName.toString)
     val mapWithNones = optFields.foldLeft(map) {
@@ -27,7 +26,7 @@ abstract class Mapper[T: Mappable : TypeTag] {
       case (k, v) =>
         if (optFields.exists(_ == k)) {
           val newV = v match {
-            case null => None
+            case None => None
             case va: BigDecimal => Some(va.toInt)
             case va => Some(va)
           }
@@ -60,6 +59,6 @@ abstract class Mapper[T: Mappable : TypeTag] {
 
 object Mapper {
 
-  def build[T : Mappable: TypeTag]: Mapper[T] = new Mapper[T] {}
+  def build[T: Mappable : TypeTag]: Mapper[T] = new Mapper[T] {}
 
 }

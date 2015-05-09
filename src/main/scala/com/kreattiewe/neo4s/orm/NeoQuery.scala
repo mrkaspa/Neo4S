@@ -4,6 +4,7 @@ import org.anormcypher.CypherParser._
 import org.anormcypher.{Cypher, Neo4jREST}
 
 import scala.concurrent.{ExecutionContext, Future}
+import scala.util.{Success, Try}
 
 /**
  * Created by michelperez on 4/29/15.
@@ -14,7 +15,7 @@ object NeoQuery {
 
   /** parses the results from a list of NeoNodes to a list of A */
   def transform[A <: NeoNode[_]](res: List[org.anormcypher.NeoNode], Mapper: Mapper[A]): List[A] = {
-    res.map({ case n => Mapper.mapToCase(n.props) })
+    res.map({ case n => Try(Mapper.mapToCase(n.props)) }) collect { case Success(x) => x }
   }
 
   /** parses the results from a list of NeoNodes to a list of A */
@@ -26,11 +27,13 @@ object NeoQuery {
   def transform[A <: NeoNode[_], B <: NeoNode[_], C <: NeoRel[A, B]](res: List[(org.anormcypher.NeoNode, org.anormcypher.NeoNode, org.anormcypher.NeoRelationship)], MapperA: Mapper[A], MapperB: Mapper[B], MapperC: Mapper[C]): List[C] = {
     res.map({
       case (a, b, c) =>
-        val from = MapperA.mapToCase(a.props)
-        val to = MapperB.mapToCase(b.props)
-        val props = c.props +("to" -> to, "from" -> from)
-        MapperC.mapToCase(props)
-    })
+        Try {
+          val from = MapperA.mapToCase(a.props)
+          val to = MapperB.mapToCase(b.props)
+          val props = c.props +("to" -> to, "from" -> from)
+          MapperC.mapToCase(props)
+        }
+    }) collect { case Success(x) => x }
   }
 
   /** parses the results from a list of (NeoNode, NeoNode, NeoRelationship) to a list of C[A,B] */

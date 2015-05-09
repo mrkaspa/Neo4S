@@ -9,6 +9,7 @@ import scala.concurrent.duration._
 import scala.concurrent.Await
 import UserMappers._
 import scala.concurrent.ExecutionContext.Implicits.global
+import scala.util.{Success, Failure}
 
 /**
  * Created by michelperez on 4/26/15.
@@ -61,7 +62,7 @@ class NeoORMSpec extends NeoTest {
       it("#findById") {
         withOneNode { (node, _) =>
           val user = Await.result(MyUserDAO.findById("1"), 5 seconds)
-          user.isInstanceOf[Some[MyUser]] must be(true)
+          user.isInstanceOf[Success[MyUser]] must be(true)
         }
       }
 
@@ -88,7 +89,7 @@ class NeoORMSpec extends NeoTest {
         withOneNode { (node, _) =>
           Await.result(MyUserDAO.delete(node), 2 seconds)
           val userQuery = Await.result(MyUserDAO.findById("1"), 5 seconds)
-          userQuery must be(None)
+          userQuery.isFailure must be(true)
         }
       }
 
@@ -108,7 +109,15 @@ class NeoORMSpec extends NeoTest {
       it("#findById") {
         withOneOptNode { (node, _) =>
           val user = Await.result(MyUserOptDAO.findById(Some("1")), 5 seconds)
-          user.isInstanceOf[Some[MyUserOpt]] must be(true)
+          user.isInstanceOf[Success[MyUserOpt]] must be(true)
+          user.get.age == None must be(true)
+        }
+      }
+
+      it("#findById unmarshalling error") {
+        withOneOptNode { (node, _) =>
+          val user = Await.result(MyUserDAO.findById("1"), 5 seconds)
+          user.isFailure must be(true)
         }
       }
 
@@ -179,9 +188,9 @@ class NeoORMSpec extends NeoTest {
       val saved = Await.result(MyUserExpDAO.update(userExp), 2 seconds)
       saved must be(true)
       val userFound = Await.result(MyUserDAO.findById("1"), 5 seconds)
-      userFound.isInstanceOf[Some[MyUser]] must be(true)
-      val userFoundExp = Await.result(MyUserDAO.findById("1"), 5 seconds)
-      userFoundExp.isInstanceOf[Some[MyUserExp]] must be(true)
+      userFound.isInstanceOf[Success[MyUser]] must be(true)
+      val userFoundExp = Await.result(MyUserExpDAO.findById("1"), 5 seconds)
+      userFoundExp.isInstanceOf[Success[MyUserExp]] must be(true)
     }
 
   }

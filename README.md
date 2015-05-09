@@ -12,7 +12,7 @@ resolvers ++= Seq(
 
 libraryDependencies ++= {
   Seq(
-    "com.kreattiewe" %% "neo4s" % "1.4.0"  
+    "com.kreattiewe" %% "neo4s" % "1.4.2"  
     )
 }
 
@@ -23,6 +23,14 @@ Checkout how to use it on the tests directory [here](https://github.com/mrkaspa/
 
 
 #Version
+
+## 1.4.2
+
+- Catching unmarshalling errors
+
+## 1.4.1
+
+- Fix in unmarshalling null/None
 
 ## 1.4.0
 
