@@ -12,7 +12,7 @@ resolvers ++= Seq(
 
 libraryDependencies ++= {
   Seq(
-    "com.kreattiewe" %% "neo4s" % "1.4.2"  
+    "com.kreattiewe" %% "neo4s" % "1.4.6"  
     )
 }
 
@@ -23,6 +23,24 @@ Checkout how to use it on the tests directory [here](https://github.com/mrkaspa/
 
 
 #Version
+
+## 1.4.6
+
+- FindById returns Optional value again
+
+
+## 1.4.5
+
+- Futures improved in findById
+
+## 1.4.4
+
+- Added transform option to for objects and lists 
+
+
+## 1.4.3
+
+- Uniqueness restrictions optionals for Relations 
 
 ## 1.4.2
 

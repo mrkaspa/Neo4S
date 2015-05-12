@@ -62,7 +62,7 @@ class NeoORMSpec extends NeoTest {
       it("#findById") {
         withOneNode { (node, _) =>
           val user = Await.result(MyUserDAO.findById("1"), 5 seconds)
-          user.isInstanceOf[Success[MyUser]] must be(true)
+          user.isInstanceOf[Some[MyUser]] must be(true)
         }
       }
 
@@ -71,7 +71,7 @@ class NeoORMSpec extends NeoTest {
           val query =
             s"""match (n:user { id: "1"}) return n""".stripMargin
           val res = Cypher(query).as(get[org.anormcypher.NeoNode]("n") *)
-          val listRes = NeoQuery.transform[MyUser](res)
+          val listRes = NeoQuery.transformI[MyUser](res)
           listRes.isInstanceOf[List[MyUser]] must be(true)
           listRes.size must be(1)
         }
@@ -89,7 +89,7 @@ class NeoORMSpec extends NeoTest {
         withOneNode { (node, _) =>
           Await.result(MyUserDAO.delete(node), 2 seconds)
           val userQuery = Await.result(MyUserDAO.findById("1"), 5 seconds)
-          userQuery.isFailure must be(true)
+          userQuery must be(None)
         }
       }
 
@@ -109,14 +109,14 @@ class NeoORMSpec extends NeoTest {
       it("#findById") {
         withOneOptNode { (node, _) =>
           val user = Await.result(MyUserOptDAO.findById(Some("1")), 5 seconds)
-          user.isInstanceOf[Success[MyUserOpt]] must be(true)
+          user.isInstanceOf[Some[MyUserOpt]] must be(true)
           user.get.age == None must be(true)
         }
       }
 
       it("#findById unmarshalling error") {
         withOneOptNode { (node, _) =>
-          val user = Await.result(MyUserDAO.findById("1"), 5 seconds)
+          val user = Await.ready(MyUserDAO.findById("1"), 5 seconds).value.get
           user.isFailure must be(true)
         }
       }
@@ -137,6 +137,12 @@ class NeoORMSpec extends NeoTest {
 
     describe("After the relation is created") {
 
+      it("error saving the second relation") {
+        withOneRelation { (rel, _) =>
+          val saved = Await.result(MyRelDAO.save(rel.copy(enabled = false)), 2 seconds)
+          saved must be(false)
+        }
+      }
 
       it("updates enabled to false") {
         withOneRelation { (rel, _) =>
@@ -158,7 +164,7 @@ class NeoORMSpec extends NeoTest {
             s"""match (a:user)-[c:friendship]->(b:user)
                   return a, b, c """.stripMargin
           val res = Cypher(query).as(get[org.anormcypher.NeoNode]("a") ~ get[org.anormcypher.NeoNode]("b") ~ get[org.anormcypher.NeoRelationship]("c") *).map(flatten)
-          val listRes = NeoQuery.transform[MyUser, MyUser, MyRel](res)
+          val listRes = NeoQuery.transformI[MyUser, MyUser, MyRel](res)
           listRes.size must be(1)
           listRes(0) must be(rel)
         }
@@ -188,9 +194,9 @@ class NeoORMSpec extends NeoTest {
       val saved = Await.result(MyUserExpDAO.update(userExp), 2 seconds)
       saved must be(true)
       val userFound = Await.result(MyUserDAO.findById("1"), 5 seconds)
-      userFound.isInstanceOf[Success[MyUser]] must be(true)
+      userFound.isInstanceOf[Some[MyUser]] must be(true)
       val userFoundExp = Await.result(MyUserExpDAO.findById("1"), 5 seconds)
-      userFoundExp.isInstanceOf[Success[MyUserExp]] must be(true)
+      userFoundExp.isInstanceOf[Some[MyUserExp]] must be(true)
     }
 
   }
