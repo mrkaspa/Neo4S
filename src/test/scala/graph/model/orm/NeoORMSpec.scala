@@ -158,6 +158,20 @@ class NeoORMSpec extends NeoTest {
         }
       }
 
+      it("deletes one node with rel fails") {
+        withOneRelation { (rel, _) =>
+          val deleted = Await.result(MyUserDAO.delete(rel.to), 2 seconds)
+          deleted must be(false)
+        }
+      }
+
+      it("deletes one node with rel works") {
+        withOneRelation { (rel, _) =>
+          val deleted = Await.result(MyUserDAO.deleteWithRelations(rel.to), 2 seconds)
+          deleted must be(true)
+        }
+      }
+
       it("queries the rel") {
         withOneRelation { (rel, _) =>
           val query =

@@ -18,6 +18,7 @@ object NeoQuery {
     Try(Mapper.mapToCase(res.props))
   }
 
+  /** parses a NeoNode to an instance of A */
   def transformI[A <: NeoNode[_]](res: org.anormcypher.NeoNode)(implicit Mapper: Mapper[A]): Try[A] = {
     transform(res, Mapper)
   }
@@ -35,6 +36,7 @@ object NeoQuery {
     }
   }
 
+  /** parses the results from a list of (NeoNode, NeoNode, NeoRelationship) to a list of C[A,B] */
   def transformI[A <: NeoNode[_], B <: NeoNode[_], C <: NeoRel[A, B]](res: (org.anormcypher.NeoNode, org.anormcypher.NeoNode, org.anormcypher.NeoRelationship))(implicit MapperA: Mapper[A], MapperB: Mapper[B], MapperC: Mapper[C]): Try[C] = {
     transform(res, MapperA, MapperB, MapperC)
   }
@@ -71,6 +73,5 @@ object NeoQuery {
     val res = Cypher(query).as(get[org.anormcypher.NeoNode]("a") ~ get[org.anormcypher.NeoNode]("b") ~ get[org.anormcypher.NeoRelationship]("c") *).map(flatten)
     transform(res, MapperA, MapperB, MapperC)
   }
-
 
 }

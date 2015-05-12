@@ -37,9 +37,16 @@ abstract class NodeDAO[T <: NeoNode[A] : Mapper, A](implicit val Mapper: Mapper[
     Cypher(query).execute()
   }
 
+  /** deletes a node of type T looking for t.id with its incomming and outgoing relations*/
+  def deleteWithRelations(t: T)(implicit connection: Neo4jREST, ec: ExecutionContext): Future[Boolean] = Future {
+    val query =
+      s"""match (n:${t.label} { id: "${t.getId()}"})-[r]-() delete r, n""".stripMargin
+    Cypher(query).execute()
+  }
+
   /** returns the first node looked by the id of type A and labels */
   def findById(a: A, label: Option[String] = None)(implicit connection: Neo4jREST, ec: ExecutionContext): Future[Option[T]] = {
-    val p = Promise[Option[T]]
+    val promisedOption = Promise[Option[T]]
     Future {
       val labelStr = if (label == None) "" else s":${label.get}"
       val id = a match {
@@ -52,13 +59,13 @@ abstract class NodeDAO[T <: NeoNode[A] : Mapper, A](implicit val Mapper: Mapper[
       resOptTry match {
         case Some(resTry) =>
           resTry match {
-            case Success(res) => p.success(Some(res))
-            case Failure(e) => p.failure(e)
+            case Success(res) => promisedOption.success(Some(res))
+            case Failure(e) => promisedOption.failure(e)
           }
-        case None => p.success(None)
+        case None => promisedOption.success(None)
       }
     }
-    p.future
+    promisedOption.future
   }
 
 }

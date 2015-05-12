@@ -12,7 +12,7 @@ resolvers ++= Seq(
 
 libraryDependencies ++= {
   Seq(
-    "com.kreattiewe" %% "neo4s" % "1.4.6"  
+    "com.kreattiewe" %% "neo4s" % "1.4.7"  
     )
 }
 
@@ -23,6 +23,10 @@ Checkout how to use it on the tests directory [here](https://github.com/mrkaspa/
 
 
 #Version
+
+## 1.4.7
+
+- Added deleteWithRelations to NodeDAO
 
 ## 1.4.6
 
