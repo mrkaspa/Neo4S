@@ -12,7 +12,7 @@ resolvers ++= Seq(
 
 libraryDependencies ++= {
   Seq(
-    "com.kreattiewe" %% "neo4s" % "1.4.7"  
+    "com.kreattiewe" %% "neo4s" % "1.5.0"  
     )
 }
 
@@ -23,6 +23,14 @@ Checkout how to use it on the tests directory [here](https://github.com/mrkaspa/
 
 
 #Version
+
+## 1.5.0
+
+- Fix unmarshalling Seq of Doubles or Ints
+
+## 1.4.8
+
+- NodeDAO.save returns false when the id of t is None 
 
 ## 1.4.7
 

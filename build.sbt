@@ -8,7 +8,7 @@ sonatypeProfileName := "com.kreattiewe"
 
 name := """neo4s"""
 
-version := "1.4.7"
+version := "1.5.0"
 
 scalaVersion := "2.11.6"
 

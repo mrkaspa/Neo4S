@@ -15,9 +15,12 @@ abstract class NodeDAO[T <: NeoNode[A] : Mapper, A](implicit val Mapper: Mapper[
 
   /** saves a node of type T */
   def save(t: T)(implicit connection: Neo4jREST, ec: ExecutionContext): Future[Boolean] = Future {
-    val query =
-      s"create (n:${t.label} {props})".stripMargin
-    Cypher(query).on("props" -> Mapper.caseToMap(t)).execute()
+    if (t.id == None) false
+    else {
+      val query =
+        s"create (n:${t.label} {props})".stripMargin
+      Cypher(query).on("props" -> Mapper.caseToMap(t)).execute()
+    }
   }
 
   /** updates a node of type T looking for t.id */
@@ -37,7 +40,7 @@ abstract class NodeDAO[T <: NeoNode[A] : Mapper, A](implicit val Mapper: Mapper[
     Cypher(query).execute()
   }
 
-  /** deletes a node of type T looking for t.id with its incomming and outgoing relations*/
+  /** deletes a node of type T looking for t.id with its incomming and outgoing relations */
   def deleteWithRelations(t: T)(implicit connection: Neo4jREST, ec: ExecutionContext): Future[Boolean] = Future {
     val query =
       s"""match (n:${t.label} { id: "${t.getId()}"})-[r]-() delete r, n""".stripMargin

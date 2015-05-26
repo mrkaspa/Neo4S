@@ -137,6 +137,26 @@ class NeoORMSpec extends NeoTest {
 
     describe("After the relation is created") {
 
+      it("creates a rel with Seq and after updates the enabled") {
+        withTwoNodes { (node1, node2) =>
+          val myRelSeq = MyRelSeq(node1, node2, true, Seq(1.23, 23.4))
+          val saved = Await.result(MyRelSeqDAO.save(myRelSeq), 2 seconds)
+          saved must be(true)
+          val query =
+            s"""
+              match (a:user { id: "${node1.id}"}), (b:user { id: "${node2.id}"}),
+              (a)-[c:friendship_seq]->(b) return a, b, c
+            """.stripMargin
+          val fut = NeoQuery.executeQuery[MyUser, MyUser, MyRelSeq](query) map {
+            case List(res) => Some(res)
+            case _ => None
+          }
+          val friendship = Await.result(fut, 2 seconds)
+          val updated = Await.result(MyRelSeqDAO.update(friendship.get.copy(enabled = true)), 2 seconds)
+          updated must be(true)
+        }
+      }
+
       it("error saving the second relation") {
         withOneRelation { (rel, _) =>
           val saved = Await.result(MyRelDAO.save(rel.copy(enabled = false)), 2 seconds)

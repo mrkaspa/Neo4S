@@ -2,6 +2,7 @@ package com.kreattiewe.neo4s.orm
 
 import com.kreattiewe.mapper.macros.Mappable
 
+import scala.collection.mutable.ListBuffer
 import scala.reflect.runtime.universe._
 
 
@@ -16,24 +17,34 @@ abstract class Mapper[T: Mappable : TypeTag] {
   /** takes a map and returns the T instance */
   def mapToCase(map: Map[String, Any]) = {
     val tpe = typeTag[T].tpe
-    val optType = typeOf[Option[_]]
-    val optFields = tpe.decls.collectFirst { case m: MethodSymbol if m.isPrimaryConstructor => m }.get.paramLists.head
-      .filter(_.asTerm.info <:< optType).map(_.asTerm.name.decodedName.toString)
+    val params = tpe.decls.collectFirst { case m: MethodSymbol if m.isPrimaryConstructor => m }.get.paramLists.head
+    val extractName = (r: Symbol) => r.asTerm.name.decodedName.toString
+    val optFields = params.filter(_.asTerm.info <:< typeOf[Option[_]]).map(extractName)
+    val intFields = params.filter((x) => x.asTerm.info <:< typeOf[Int] || x.asTerm.info <:< typeOf[Seq[Int]]).map(extractName)
+    val doubleFields = params.filter((x) => x.asTerm.info <:< typeOf[Double] || x.asTerm.info <:< typeOf[Seq[Double]]).map(extractName)
     val mapWithNones = optFields.foldLeft(map) {
       (newMap, fieldName) => if (!newMap.contains(fieldName)) newMap + (fieldName -> None) else newMap
+    }
+    def transformBigDecimal(fieldName: String, va: BigDecimal): Any = {
+      if (intFields.contains(fieldName)) va.toInt
+      else if (doubleFields.contains(fieldName)) va.toDouble
     }
     val newMap = mapWithNones.map {
       case (k, v) =>
         if (optFields.exists(_ == k)) {
           val newV = v match {
             case None => None
-            case va: BigDecimal => Some(va.toInt)
+            case va: BigDecimal => Some(transformBigDecimal(k, va))
+            case va: ListBuffer[BigDecimal] => Some(va.toSeq.map(transformBigDecimal(k, _)))
+            case va: ListBuffer[_] => Some(va.toSeq)
             case va => Some(va)
           }
           (k, newV)
         } else {
           val newV = v match {
-            case va: BigDecimal => va.toInt
+            case va: BigDecimal => transformBigDecimal(k, va)
+            case va: ListBuffer[BigDecimal] => va.toSeq.map(transformBigDecimal(k, _))
+            case va: ListBuffer[_] => va.toSeq
             case va => va
           }
           (k, newV)

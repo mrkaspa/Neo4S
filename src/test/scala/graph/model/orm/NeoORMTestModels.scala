@@ -11,6 +11,7 @@ object UserMappers {
   implicit val myUserOptMapper = Mapper.build[MyUserOpt]
   implicit val myUserExpMapper = Mapper.build[MyUserExp]
   implicit val myRelMapper = Mapper.build[MyRel]
+  implicit val myRelSeqMapper = Mapper.build[MyRelSeq]
 }
 
 import UserMappers._
@@ -26,7 +27,13 @@ case class MyRel(from: MyUser, to: MyUser, enabled: Boolean) extends NeoRel[MyUs
   override val label = "friendship"
 }
 
+case class MyRelSeq(from: MyUser, to: MyUser, enabled: Boolean, loc: Seq[Double]) extends NeoRel[MyUser, MyUser] {
+  override val label = "friendship_seq"
+}
+
 object MyRelDAO extends RelDAO[MyUser, MyUser, MyRel]
+
+object MyRelSeqDAO extends RelDAO[MyUser, MyUser, MyRelSeq]
 
 case class MyUserOpt(id: Option[String], name: String, age: Option[Int]) extends NeoNode[Option[String]] {
   override val label = "user"
