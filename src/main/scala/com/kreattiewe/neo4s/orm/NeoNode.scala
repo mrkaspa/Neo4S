@@ -1,9 +1,11 @@
 package com.kreattiewe.neo4s.orm
 
+import com.kreattiewe.mapper.macros.Mappable
 import org.anormcypher.CypherParser._
 import org.anormcypher.{Cypher, Neo4jREST}
 
 import scala.concurrent.{Promise, Future, ExecutionContext}
+import scala.reflect.runtime.universe._
 import scala.util.{Failure, Success}
 
 /**
@@ -13,7 +15,7 @@ import scala.util.{Failure, Success}
  */
 abstract class NeoNode[T: Mapper] extends Labelable {
 
-  val Mapper = implicitly[Mapper[T]]
+  val MapperT = implicitly[Mapper[T]]
 
   /** Unwraps the id if this comes in Option */
   def id(t: T): String
@@ -25,7 +27,7 @@ abstract class NeoNode[T: Mapper] extends Labelable {
       val query =
         s"create (n:${label} {props})".stripMargin
 
-      Cypher(query).on("props" -> Mapper.caseToMap(t)).execute()
+      Cypher(query).on("props" -> MapperT.caseToMap(t)).execute()
     }
   }
 
@@ -36,7 +38,7 @@ abstract class NeoNode[T: Mapper] extends Labelable {
         match (n:${label} { id: "${id(t)}"})
         set n += {props}
         """.stripMargin
-    Cypher(query).on("props" -> Mapper.caseToMap(t)).execute()
+    Cypher(query).on("props" -> MapperT.caseToMap(t)).execute()
   }
 
   /** deletes a node of type T looking for t.id */
@@ -60,7 +62,7 @@ abstract class NeoNode[T: Mapper] extends Labelable {
       val labelStr = if (label.isEmpty) "" else s":${label.get}"
       val query =
         s"""match (n$labelStr { id: "$id"}) return n""".stripMargin
-      val resOptTry = Cypher(query).as(get[org.anormcypher.NeoNode]("n") *).collectFirst({ case n => n }).map({ case n => NeoQuery.transform(n, Mapper) })
+      val resOptTry = Cypher(query).as(get[org.anormcypher.NeoNode]("n") *).collectFirst({ case n => n }).map({ case n => NeoQuery.transform(n, MapperT) })
       resOptTry match {
         case Some(resTry) =>
           resTry match {
@@ -73,6 +75,19 @@ abstract class NeoNode[T: Mapper] extends Labelable {
     promisedOption.future
   }
 
+  def operations(t: T) = new NeoNodeOperations(t)
+
+  class NeoNodeOperations(t: T) {
+
+    def save()(implicit connection: Neo4jREST, ec: ExecutionContext) = NeoNode.this.save(t)
+
+    def update()(implicit connection: Neo4jREST, ec: ExecutionContext) = NeoNode.this.update(t)
+
+    def delete()(implicit connection: Neo4jREST, ec: ExecutionContext) = NeoNode.this.delete(t)
+
+    def deleteWithRelations()(implicit connection: Neo4jREST, ec: ExecutionContext) = NeoNode.this.deleteWithRelations(t)
+
+  }
 
 }
 
@@ -84,22 +99,4 @@ object NeoNode {
     override val label: String = labelS
   }
 
-}
-
-class NeoNodeOperations[T: NeoNode : Mapper, A](t: T) {
-
-  val NeoNodeT = implicitly[NeoNode[T]]
-
-  def save()(implicit connection: Neo4jREST, ec: ExecutionContext) = NeoNodeT.save(t)
-
-  def update()(implicit connection: Neo4jREST, ec: ExecutionContext) = NeoNodeT.update(t)
-
-  def delete()(implicit connection: Neo4jREST, ec: ExecutionContext) = NeoNodeT.delete(t)
-
-  def deleteWithRelations()(implicit connection: Neo4jREST, ec: ExecutionContext) = NeoNodeT.deleteWithRelations(t)
-
-}
-
-object NeoNodeOperations {
-  def apply[T: NeoNode : Mapper](t: T) = new NeoNodeOperations(t)
 }

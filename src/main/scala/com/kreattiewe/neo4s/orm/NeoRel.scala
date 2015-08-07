@@ -1,8 +1,10 @@
 package com.kreattiewe.neo4s.orm
 
+import com.kreattiewe.mapper.macros.Mappable
 import org.anormcypher.{Cypher, Neo4jREST}
 
 import scala.concurrent.{Future, ExecutionContext}
+import scala.reflect.runtime.universe._
 
 /**
  * Created by michelperez on 4/27/15.
@@ -74,25 +76,24 @@ abstract class NeoRel[C <: Rel[A, B] : Mapper, A: NeoNode, B: NeoNode] extends L
       """.stripMargin
     Cypher(query).execute()
   }
+
+  def operations(c: C) = new NeoRelOperations(c)
+
+  class NeoRelOperations(c: C) {
+
+    def save()(implicit connection: Neo4jREST, ec: ExecutionContext) = NeoRel.this.save(c)
+
+    def update()(implicit connection: Neo4jREST, ec: ExecutionContext) = NeoRel.this.update(c)
+
+    def delete()(implicit connection: Neo4jREST, ec: ExecutionContext) = NeoRel.this.delete(c)
+
+  }
+
 }
 
 object NeoRel {
-  def apply[C <: Rel[A, B] : Mapper, A: NeoNode, B: NeoNode](labelS: String, unique: Boolean = false) = new NeoRel[C, A, B] {
+  def apply[C <: Rel[A, B] : Mapper, A: NeoNode, B: NeoNode](labelS: String, uniqueV: Boolean = false) = new NeoRel[C, A, B] {
     override val label: String = labelS
-    override val unique: Boolean = unique
+    override val unique: Boolean = uniqueV
   }
-}
-
-class NeoRelOperations[C <: Rel[A, B] : Mapper, A: NeoNode, B: NeoNode](neoRel: NeoRel[C,A,B], c: C) {
-
-  def save()(implicit connection: Neo4jREST, ec: ExecutionContext) = neoRel.save(c)
-
-  def update()(implicit connection: Neo4jREST, ec: ExecutionContext) = neoRel.update(c)
-
-  def delete()(implicit connection: Neo4jREST, ec: ExecutionContext) = neoRel.delete(c)
-
-}
-
-object NeoRelOperations {
-  def apply[C <: Rel[A, B] : Mapper, A: NeoNode, B: NeoNode](neoRel: NeoRel[C,A,B],c: C) = new NeoRelOperations(neoRel, c)
 }

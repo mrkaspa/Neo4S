@@ -20,7 +20,7 @@ object UserNodes {
 
   implicit val userNode = NeoNode("user", (user: MyUser) => user.id)
 
-  implicit def parseUserNode(user: MyUser) = NeoNodeOperations(user)
+  implicit def parseUserNode(user: MyUser) = userNode.operations(user) //NeoNodeOperations(user)
 
 }
 
@@ -31,15 +31,10 @@ object UserRels {
 
   val userRel = NeoRel[MyRel, MyUser, MyUser]("friendship", true)
 
-  implicit def parseUserRel(rel: MyRel) = NeoRelOperations[MyRel, MyUser, MyUser](userRel, rel)
+  implicit def parseUserRel(rel: MyRel) = userRel.operations(rel)
 }
 
-//object Rels{
-//  implicit val userUserRels = NeoRel.newRel[User]("friendship")
-//}
-
 import UserNodes._
-import UserMappers._
 
 case class MyUser(id: String, name: String, age: Int)
 
