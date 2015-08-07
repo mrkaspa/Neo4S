@@ -55,17 +55,17 @@ abstract class Mapper[T: Mappable : TypeTag] {
 
   /** takes an instance of T and returns the Map */
   def caseToMap(t: T) = {
-    implicitly[Mappable[T]].toMap(t)
-//    val map = implicitly[Mappable[T]].toMap(t)
+    //    implicitly[Mappable[T]].toMap(t)
+    val map = implicitly[Mappable[T]].toMap(t)
 
-    //    val mapFiltered = if (t.isInstanceOf[NeoRel[_, _]]) map -("to", "from") else map
-//    mapFiltered.filter({
-//      case (k, None) => false
-//      case _ => true
-//    }).map({
-//      case (k, v@Some(a)) => (k, a)
-//      case (k, v) => (k, v)
-//    })
+    val mapFiltered = if (t.isInstanceOf[Rel[_, _]]) map -("to", "from") else map
+    mapFiltered.filter({
+      case (k, None) => false
+      case _ => true
+    }).map({
+      case (k, v@Some(a)) => (k, a)
+      case (k, v) => (k, v)
+    })
   }
 
 }

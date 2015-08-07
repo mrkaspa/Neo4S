@@ -1,5 +1,6 @@
 //package com.kreattiewe.neo4s.orm
 //
+//import com.kreattiewe.neo4s.orm.NeoRel
 //import org.anormcypher.{Cypher, Neo4jREST}
 //
 //import scala.concurrent.{ExecutionContext, Future}
@@ -12,8 +13,15 @@
 // * B = Node Destitny
 // * C = Rel
 // **/
-//abstract class RelDAO[A: NeoNode[_, _] : Mapper, B: NeoNode[_, _] : Mapper, C : NeoRel[A, B, _, _] : Mapper]
-//(implicit val MapperA: Mapper[A], implicit val MapperB: Mapper[B], implicit val MapperC: Mapper[C]) {
+//abstract class RelDAO[A: NeoNode : Mapper, B: NeoNode: Mapper, C : NeoRel : Mapper]
+//{
+//
+//  val MapperA = implicitly[Mapper[A]]
+//  val MapperB = implicitly[Mapper[B]]
+//  val MapperC =  implicitly[Mapper[C]]
+//  val NeoNodeA = implicitly[NeoNode[A]]
+//  val NeoNodeB = implicitly[NeoNode[B]]
+//  val NeoRelC = implicitly[NeoRel[C]]
 //
 //  val unique: Boolean = true
 //
@@ -21,7 +29,7 @@
 //  = Future {
 //    val query =
 //      s"""
-//         match (a:${c.fromLabel}{ id: "${c.fromId}"})-[c:${c.label}]->(b:${c.toLabel}{ id: "${c.toId}"})
+//         match (a:${NeoNodeA.label}{ id: "${NeoNodeA.id(a)}"})-[c:${c.label}]->(b:${c.toLabel}{ id: "${c.toId}"})
 //         return c
 //       """.stripMargin
 //    Cypher(query)().size == 0

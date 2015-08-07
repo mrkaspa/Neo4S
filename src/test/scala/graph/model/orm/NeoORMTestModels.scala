@@ -10,7 +10,7 @@ object UserMappers {
   implicit val myUserMapper = Mapper.build[MyUser]
   //  implicit val myUserOptMapper = Mapper.build[MyUserOpt]
   //  implicit val myUserExpMapper = Mapper.build[MyUserExp]
-  //  implicit val myRelMapper = Mapper.build[MyRel]
+  implicit val myRelMapper = Mapper.build[MyRel]
   //  implicit val myRelSeqMapper = Mapper.build[MyRelSeq]
 }
 
@@ -18,9 +18,20 @@ object UserNodes {
 
   import UserMappers._
 
-  implicit val userNode = NeoNode.apply("user", (user: MyUser) => Some(user.id))
+  implicit val userNode = NeoNode("user", (user: MyUser) => user.id)
 
   implicit def parseUserNode(user: MyUser) = NeoNodeOperations(user)
+
+}
+
+object UserRels {
+
+  import UserMappers._
+  import UserNodes._
+
+  val userRel = NeoRel[MyRel, MyUser, MyUser]("friendship", true)
+
+  implicit def parseUserRel(rel: MyRel) = NeoRelOperations[MyRel, MyUser, MyUser](userRel, rel)
 }
 
 //object Rels{
@@ -32,10 +43,10 @@ import UserMappers._
 
 case class MyUser(id: String, name: String, age: Int)
 
-object MyUserDAO extends NodeDAO[MyUser, String]
+//object MyUserDAO extends NodeDAO[MyUser, String]
 
 
-case class MyRel(from: MyUser, to: MyUser, enabled: Boolean)
+case class MyRel(from: MyUser, to: MyUser, enabled: Boolean) extends Rel[MyUser, MyUser]
 
 //
 //case class MyRelSeq(from: MyUser, to: MyUser, enabled: Boolean, loc: Seq[Double]) extends NeoRel[MyUser, MyUser] {
