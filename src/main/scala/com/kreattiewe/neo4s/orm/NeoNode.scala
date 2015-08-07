@@ -55,26 +55,6 @@ abstract class NeoNode[T: Mapper] extends Labelable {
     Cypher(query).execute()
   }
 
-  /** returns the first node looked by the id of type A and labels */
-  def findById(id: String, label: Option[String] = None)(implicit connection: Neo4jREST, ec: ExecutionContext): Future[Option[T]] = {
-    val promisedOption = Promise[Option[T]]()
-    Future {
-      val labelStr = if (label.isEmpty) "" else s":${label.get}"
-      val query =
-        s"""match (n$labelStr { id: "$id"}) return n""".stripMargin
-      val resOptTry = Cypher(query).as(get[org.anormcypher.NeoNode]("n") *).collectFirst({ case n => n }).map({ case n => NeoQuery.transform(n, MapperT) })
-      resOptTry match {
-        case Some(resTry) =>
-          resTry match {
-            case Success(res) => promisedOption.success(Some(res))
-            case Failure(e) => promisedOption.failure(e)
-          }
-        case None => promisedOption.success(None)
-      }
-    }
-    promisedOption.future
-  }
-
   def operations(t: T) = new NeoNodeOperations(t)
 
   class NeoNodeOperations(t: T) {

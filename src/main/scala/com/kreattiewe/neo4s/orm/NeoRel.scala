@@ -12,7 +12,7 @@ import scala.reflect.runtime.universe._
  * every relationship has and start and end point
  */
 
-abstract class Rel[A: NeoNode, B: NeoNode] {
+abstract class Rel[A, B] {
   val from: A
   val to: B
 }
