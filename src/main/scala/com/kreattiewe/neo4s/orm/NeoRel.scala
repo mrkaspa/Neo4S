@@ -1,10 +1,8 @@
 package com.kreattiewe.neo4s.orm
 
-import com.kreattiewe.mapper.macros.Mappable
 import org.anormcypher.{Cypher, Neo4jREST}
 
-import scala.concurrent.{Future, ExecutionContext}
-import scala.reflect.runtime.universe._
+import scala.concurrent.{ExecutionContext, Future}
 
 /**
  * Created by michelperez on 4/27/15.
@@ -12,6 +10,7 @@ import scala.reflect.runtime.universe._
  * every relationship has and start and end point
  */
 
+/** Every relationship must inherit this */
 abstract class Rel[A, B] {
   val from: A
   val to: B
@@ -77,20 +76,25 @@ abstract class NeoRel[C <: Rel[A, B] : Mapper, A: NeoNode, B: NeoNode] extends L
     Cypher(query).execute()
   }
 
+  /**Converts C into an operations of C */
   def operations(c: C) = new NeoRelOperations(c)
 
   class NeoRelOperations(c: C) {
 
+    /**Calls save on C */
     def save()(implicit connection: Neo4jREST, ec: ExecutionContext) = NeoRel.this.save(c)
 
+    /**Calls update on C */
     def update()(implicit connection: Neo4jREST, ec: ExecutionContext) = NeoRel.this.update(c)
 
+    /**Calls delete on C */
     def delete()(implicit connection: Neo4jREST, ec: ExecutionContext) = NeoRel.this.delete(c)
 
   }
 
 }
 
+/**Creates a NeoRel instance */
 object NeoRel {
   def apply[C <: Rel[A, B] : Mapper, A: NeoNode, B: NeoNode](labelS: String, uniqueV: Boolean = false) = new NeoRel[C, A, B] {
     override val label: String = labelS

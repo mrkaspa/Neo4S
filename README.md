@@ -12,7 +12,7 @@ resolvers ++= Seq(
 
 libraryDependencies ++= {
   Seq(
-    "com.kreattiewe" %% "neo4s" % "1.5.0"  
+    "com.kreattiewe" %% "neo4s" % "2.0.0"  
     )
 }
 
@@ -23,6 +23,10 @@ Checkout how to use it on the tests directory [here](https://github.com/mrkaspa/
 
 
 #Version
+
+## 2.0.0
+
+- Added type level scala, this version is incompatible with 1.x.x code (previous version)
 
 ## 1.5.0
 

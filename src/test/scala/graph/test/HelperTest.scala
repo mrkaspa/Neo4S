@@ -49,5 +49,4 @@ trait HelperTest {
     }
   }
 
-
 }

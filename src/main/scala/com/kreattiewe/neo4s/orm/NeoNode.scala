@@ -1,12 +1,8 @@
 package com.kreattiewe.neo4s.orm
 
-import com.kreattiewe.mapper.macros.Mappable
-import org.anormcypher.CypherParser._
 import org.anormcypher.{Cypher, Neo4jREST}
 
-import scala.concurrent.{Promise, Future, ExecutionContext}
-import scala.reflect.runtime.universe._
-import scala.util.{Failure, Success}
+import scala.concurrent.{ExecutionContext, Future}
 
 /**
  * Created by michelperez on 4/26/15.
@@ -55,22 +51,28 @@ abstract class NeoNode[T: Mapper] extends Labelable {
     Cypher(query).execute()
   }
 
+  /**Converts T into an operations of T */
   def operations(t: T) = new NeoNodeOperations(t)
 
   class NeoNodeOperations(t: T) {
 
+    /**Calls save on T */
     def save()(implicit connection: Neo4jREST, ec: ExecutionContext) = NeoNode.this.save(t)
 
+    /**Calls update on T */
     def update()(implicit connection: Neo4jREST, ec: ExecutionContext) = NeoNode.this.update(t)
 
+    /**Calls delete on T */
     def delete()(implicit connection: Neo4jREST, ec: ExecutionContext) = NeoNode.this.delete(t)
 
+    /**Calls deleteWithRelations on T */
     def deleteWithRelations()(implicit connection: Neo4jREST, ec: ExecutionContext) = NeoNode.this.deleteWithRelations(t)
 
   }
 
 }
 
+/**Creates a NeoNode instance */
 object NeoNode {
 
   def apply[T: Mapper](labelS: String, f: T => String) = new NeoNode[T] {
