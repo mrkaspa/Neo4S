@@ -37,7 +37,7 @@ class RelSpec extends NeoTest with HelperTest {
           val query =
             s"""
                   match (a:user { id: "${node1.id}"}), (b:user { id: "${node2.id}"}),
-                  (a)-[c:friendship_seq]->(b) return a, b, c
+                  (a)-[c:friendship]->(b) return a, b, c
                 """.stripMargin
           val fut = NeoQuery.executeQuery[MyUser, MyUser, MyRelSeq](query) map {
             case List(res) => Some(res)

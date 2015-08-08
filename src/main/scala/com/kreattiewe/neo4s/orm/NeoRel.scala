@@ -58,7 +58,7 @@ abstract class NeoRel[C <: Rel[A, B] : Mapper, A: NeoNode, B: NeoNode] extends L
     val query =
       s"""
          match (a:${NeoNodeA.label}{ id: "${NeoNodeA.id(c.from)}"}),
-         (b:${NeoNodeB.label}{ id: "${NeoNodeB.id(c.to)}"})
+         (b:${NeoNodeB.label}{ id: "${NeoNodeB.id(c.to)}"}),
          (a)-[c:${label}]->(b)
          set c += {props}
       """.stripMargin
@@ -70,7 +70,7 @@ abstract class NeoRel[C <: Rel[A, B] : Mapper, A: NeoNode, B: NeoNode] extends L
     val query =
       s"""
          match (a:${NeoNodeA.label}{ id: "${NeoNodeA.id(c.from)}"}),
-         (b:${NeoNodeB.label}{ id: "${NeoNodeB.id(c.to)}"})
+         (b:${NeoNodeB.label}{ id: "${NeoNodeB.id(c.to)}"}),
          (a)-[c:${label}]->(b)
          delete c
       """.stripMargin
