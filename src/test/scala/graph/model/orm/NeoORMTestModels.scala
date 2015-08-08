@@ -14,35 +14,39 @@ object UserMappers {
   implicit val myRelSeqMapper = Mapper.build[MyRelSeq]
 }
 
-import UserMappers._
+object UserNodes {
 
-case class MyUser(id: String, name: String, age: Int) extends NeoNode[String] {
-  override val label = "user"
+  import UserMappers._
+
+  implicit val userNode = NeoNode("user", (user: MyUser) => user.id)
+  implicit def parseUserNode(user: MyUser) = userNode.operations(user)
+
+  implicit val userOptNode = NeoNode("user", (user: MyUserOpt) => user.id.getOrElse(""))
+  implicit def parseUserOptNode(user: MyUserOpt) = userOptNode.operations(user)
+
+  implicit val userExpNode = NeoNode("user", (user: MyUserExp) => user.id)
+  implicit def parseUserExpNode(user: MyUserExp) = userExpNode.operations(user)
+
 }
 
-object MyUserDAO extends NodeDAO[MyUser, String]
+object UserRels {
 
+  import UserMappers._
+  import UserNodes._
 
-case class MyRel(from: MyUser, to: MyUser, enabled: Boolean) extends NeoRel[MyUser, MyUser] {
-  override val label = "friendship"
+  val userRel = NeoRel[MyRel, MyUser, MyUser]("friendship", true)
+  implicit def parseUserRel(rel: MyRel) = userRel.operations(rel)
+
+  val userRelSeq = NeoRel[MyRelSeq, MyUser, MyUser]("friendship", true)
+  implicit def parseUserRelSeq(rel: MyRelSeq) = userRelSeq.operations(rel)
 }
 
-case class MyRelSeq(from: MyUser, to: MyUser, enabled: Boolean, loc: Seq[Double]) extends NeoRel[MyUser, MyUser] {
-  override val label = "friendship_seq"
-}
+case class MyUser(id: String, name: String, age: Int)
 
-object MyRelDAO extends RelDAO[MyUser, MyUser, MyRel]
+case class MyUserOpt(id: Option[String], name: String, age: Option[Int])
 
-object MyRelSeqDAO extends RelDAO[MyUser, MyUser, MyRelSeq]
+case class MyUserExp(id: String, name: String, email: String)
 
-case class MyUserOpt(id: Option[String], name: String, age: Option[Int]) extends NeoNode[Option[String]] {
-  override val label = "user"
-}
+case class MyRel(from: MyUser, to: MyUser, enabled: Boolean) extends Rel[MyUser, MyUser]
 
-object MyUserOptDAO extends NodeDAO[MyUserOpt, Option[String]]
-
-case class MyUserExp(id: String, name: String, email: String) extends NeoNode[String] {
-  override val label = "user"
-}
-
-object MyUserExpDAO extends NodeDAO[MyUserExp, String]
+case class MyRelSeq(from: MyUser, to: MyUser, enabled: Boolean, loc: Seq[Double]) extends Rel[MyUser, MyUser]
