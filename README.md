@@ -19,7 +19,7 @@ libraryDependencies ++= {
 ```
 
 # Examples
-Checkout how to use it on the tests directory [here](https://github.com/mrkaspa/Neo4S/blob/master/src/test/scala/graph/model/orm/NeoORMSpec.scala)
+Checkout how to use it on the tests directory [here](https://github.com/mrkaspa/Neo4S/blob/master/src/test/scala/graph/model/orm/)
 
 
 #Version
