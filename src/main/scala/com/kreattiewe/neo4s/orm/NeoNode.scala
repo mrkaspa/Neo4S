@@ -51,28 +51,9 @@ abstract class NeoNode[T: Mapper] extends Labelable {
     Cypher(query).execute()
   }
 
-  /**Converts T into an operations of T */
-  def operations(t: T) = new NeoNodeOperations(t)
-
-  class NeoNodeOperations(t: T) {
-
-    /**Calls save on T */
-    def save()(implicit connection: Neo4jREST, ec: ExecutionContext) = NeoNode.this.save(t)
-
-    /**Calls update on T */
-    def update()(implicit connection: Neo4jREST, ec: ExecutionContext) = NeoNode.this.update(t)
-
-    /**Calls delete on T */
-    def delete()(implicit connection: Neo4jREST, ec: ExecutionContext) = NeoNode.this.delete(t)
-
-    /**Calls deleteWithRelations on T */
-    def deleteWithRelations()(implicit connection: Neo4jREST, ec: ExecutionContext) = NeoNode.this.deleteWithRelations(t)
-
-  }
-
 }
 
-/**Creates a NeoNode instance */
+/** Creates a NeoNode instance */
 object NeoNode {
 
   def apply[T: Mapper](labelS: String, f: T => String) = new NeoNode[T] {
@@ -80,5 +61,27 @@ object NeoNode {
 
     override val label: String = labelS
   }
+
+}
+
+/** Converts T into an operations of T */
+
+object NeoNodeOperations {
+  implicit def toOperations[T](t: T)(implicit neoNode : NeoNode[T]) = new NeoNodeOperations(t, neoNode)
+}
+
+case class NeoNodeOperations[T](t: T, neoNode : NeoNode[T]) {
+
+  /** Calls save on T */
+  def save()(implicit connection: Neo4jREST, ec: ExecutionContext) = neoNode.save(t)
+
+  /** Calls update on T */
+  def update()(implicit connection: Neo4jREST, ec: ExecutionContext) = neoNode.update(t)
+
+  /** Calls delete on T */
+  def delete()(implicit connection: Neo4jREST, ec: ExecutionContext) = neoNode.delete(t)
+
+  /** Calls deleteWithRelations on T */
+  def deleteWithRelations()(implicit connection: Neo4jREST, ec: ExecutionContext) = neoNode.deleteWithRelations(t)
 
 }

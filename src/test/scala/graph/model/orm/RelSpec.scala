@@ -1,13 +1,14 @@
 package graph.model.orm
 
-import com.kreattiewe.neo4s.orm.NeoQuery
+import com.kreattiewe.neo4s.orm.{NeoRelOperations, NeoQuery}
 import graph.test.{HelperTest, NeoTest}
 
 import scala.concurrent.Await
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration._
-import graph.model.orm.UserRels._
-import graph.model.orm.UserNodes._
+import com.kreattiewe.neo4s.orm.NeoNodeOperations._
+import com.kreattiewe.neo4s.orm.NeoRelOperations._
+
 import graph.model.orm.UserMappers._
 
 import org.anormcypher.Cypher
@@ -17,12 +18,18 @@ import org.anormcypher.CypherParser._
  * Created by michelperez on 7/27/15.
  */
 class RelSpec extends NeoTest with HelperTest {
+  import graph.model.orm.UserNodes._
+  import graph.model.orm.UserRels._
 
   describe("NeoRel") {
 
     it("creates a relation") {
       withTwoNodes { (node1, node2) =>
-        val saved = Await.result(MyRel(node1, node2, true).save(), 2 seconds)
+        val op = new NeoRelOperations(MyRel(node1, node2, true), userRel)
+        val rel : MyRel = MyRel(node1, node2, true)
+        rel.save()
+
+        val saved = Await.result(op.save(), 2 seconds)
         saved must be(true)
       }
     }

@@ -76,28 +76,30 @@ abstract class NeoRel[C <: Rel[A, B] : Mapper, A: NeoNode, B: NeoNode] extends L
     Cypher(query).execute()
   }
 
-  /**Converts C into an operations of C */
-  def operations(c: C) = new NeoRelOperations(c)
-
-  class NeoRelOperations(c: C) {
-
-    /**Calls save on C */
-    def save()(implicit connection: Neo4jREST, ec: ExecutionContext) = NeoRel.this.save(c)
-
-    /**Calls update on C */
-    def update()(implicit connection: Neo4jREST, ec: ExecutionContext) = NeoRel.this.update(c)
-
-    /**Calls delete on C */
-    def delete()(implicit connection: Neo4jREST, ec: ExecutionContext) = NeoRel.this.delete(c)
-
-  }
-
 }
 
-/**Creates a NeoRel instance */
+/** Creates a NeoRel instance */
 object NeoRel {
   def apply[C <: Rel[A, B] : Mapper, A: NeoNode, B: NeoNode](labelS: String, uniqueV: Boolean = false) = new NeoRel[C, A, B] {
     override val label: String = labelS
     override val unique: Boolean = uniqueV
   }
+}
+
+/** Converts C into an operations of C */
+object NeoRelOperations {
+  implicit def operations[C <: Rel[_, _]](c: C)(implicit neoRel: NeoRel[C, _, _]) = new NeoRelOperations(c, neoRel)
+}
+
+class NeoRelOperations[C <: Rel[_, _]](c: C, neoRel: NeoRel[C, _, _]) {
+
+  /** Calls save on C */
+  def save()(implicit connection: Neo4jREST, ec: ExecutionContext) = neoRel.save(c)
+
+  /** Calls update on C */
+  def update()(implicit connection: Neo4jREST, ec: ExecutionContext) = neoRel.update(c)
+
+  /** Calls delete on C */
+  def delete()(implicit connection: Neo4jREST, ec: ExecutionContext) = neoRel.delete(c)
+
 }
