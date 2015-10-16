@@ -8,6 +8,8 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration._
 import com.kreattiewe.neo4s.orm.NeoNodeOperations._
 import com.kreattiewe.neo4s.orm.NeoRelOperations._
+import graph.model.orm.UserNodes._
+import graph.model.orm.UserRels._
 
 import graph.model.orm.UserMappers._
 
@@ -18,8 +20,6 @@ import org.anormcypher.CypherParser._
  * Created by michelperez on 7/27/15.
  */
 class RelSpec extends NeoTest with HelperTest {
-  import graph.model.orm.UserNodes._
-  import graph.model.orm.UserRels._
 
   describe("NeoRel") {
 
