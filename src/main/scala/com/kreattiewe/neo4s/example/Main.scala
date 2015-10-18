@@ -35,7 +35,7 @@ object Main extends App {
   val fut = for {
     _ <- user.save()
     _ <- friend.save()
-    saved <- Friendship(user, friend, true).save
+    saved <- Friendship(user, friend, true).save()
   } yield saved
 
   fut.map(println)
