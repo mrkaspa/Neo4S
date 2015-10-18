@@ -16,6 +16,8 @@ abstract class NeoNode[T: Mapper] extends Labelable {
   /** Unwraps the id if this comes in Option */
   def id(t: T): String
 
+  val idColumn: String
+
   def save(t: T)(implicit connection: Neo4jREST, ec: ExecutionContext): Future[Boolean] = Future {
 
     if (id(t).isEmpty) false
@@ -31,7 +33,7 @@ abstract class NeoNode[T: Mapper] extends Labelable {
   def update(t: T)(implicit connection: Neo4jREST, ec: ExecutionContext): Future[Boolean] = Future {
     val query =
       s"""
-        match (n:${label} { id: "${id(t)}"})
+        match (n:${label} { ${idColumn}: "${id(t)}"})
         set n += {props}
         """.stripMargin
     Cypher(query).on("props" -> MapperT.caseToMap(t)).execute()
@@ -40,14 +42,14 @@ abstract class NeoNode[T: Mapper] extends Labelable {
   /** deletes a node of type T looking for t.id */
   def delete(t: T)(implicit connection: Neo4jREST, ec: ExecutionContext): Future[Boolean] = Future {
     val query =
-      s"""match (n:${label} { id: "${id(t)}"}) delete n""".stripMargin
+      s"""match (n:${label} { ${idColumn}: "${id(t)}"}) delete n""".stripMargin
     Cypher(query).execute()
   }
 
   /** deletes a node of type T looking for t.id with its incomming and outgoing relations */
   def deleteWithRelations(t: T)(implicit connection: Neo4jREST, ec: ExecutionContext): Future[Boolean] = Future {
     val query =
-      s"""match (n:${label} { id: "${id(t)}"})-[r]-() delete r, n""".stripMargin
+      s"""match (n:${label} { ${idColumn}: "${id(t)}"})-[r]-() delete r, n""".stripMargin
     Cypher(query).execute()
   }
 
@@ -56,10 +58,12 @@ abstract class NeoNode[T: Mapper] extends Labelable {
 /** Creates a NeoNode instance */
 object NeoNode {
 
-  def apply[T: Mapper](labelS: String, f: T => String) = new NeoNode[T] {
+  def apply[T: Mapper](labelS: String, idColumnVal: String, f: T => String) = new NeoNode[T] {
     override def id(t: T): String = f(t)
 
     override val label: String = labelS
+
+    override val idColumn: String = idColumnVal
   }
 
 }
@@ -67,10 +71,10 @@ object NeoNode {
 /** Converts T into an operations of T */
 
 object NeoNodeOperations {
-  implicit def toOperations[T](t: T)(implicit neoNode : NeoNode[T]) = new NeoNodeOperations(t, neoNode)
+  implicit def toOperations[T](t: T)(implicit neoNode: NeoNode[T]) = new NeoNodeOperations(t, neoNode)
 }
 
-case class NeoNodeOperations[T](t: T, neoNode : NeoNode[T]) {
+case class NeoNodeOperations[T](t: T, neoNode: NeoNode[T]) {
 
   /** Calls save on T */
   def save()(implicit connection: Neo4jREST, ec: ExecutionContext) = neoNode.save(t)

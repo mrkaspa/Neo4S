@@ -8,7 +8,7 @@ sonatypeProfileName := "com.kreattiewe"
 
 name := """neo4s"""
 
-version := "2.1.0"
+version := "2.2.0"
 
 scalaVersion := "2.11.6"
 
@@ -29,9 +29,6 @@ resolvers ++= Seq(
   "Sonatype OSS Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots",
   "Typesafe Releases" at "http://repo.typesafe.com/typesafe/releases/"
 )
-
-// Uncomment to use Akka
-//libraryDependencies += "com.typesafe.akka" % "akka-actor_2.11" % "2.3.9"
 
 libraryDependencies ++= {
   val scalaTestV = "2.2.1"

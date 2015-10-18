@@ -18,11 +18,11 @@ object UserNodes {
 
   import UserMappers._
 
-  implicit val userNode = NeoNode("user", (user: MyUser) => user.id)
+  implicit val userNode = NeoNode("user", "id", (user: MyUser) => user.id)
 
-  implicit val userOptNode = NeoNode("user", (user: MyUserOpt) => user.id.getOrElse(""))
+  implicit val userOptNode = NeoNode("user", "id", (user: MyUserOpt) => user.id.getOrElse(""))
 
-  implicit val userExpNode = NeoNode("user", (user: MyUserExp) => user.id)
+  implicit val userExpNode = NeoNode("user", "id", (user: MyUserExp) => user.id)
 
 }
 

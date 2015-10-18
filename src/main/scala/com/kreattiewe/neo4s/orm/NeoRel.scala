@@ -28,7 +28,7 @@ abstract class NeoRel[C <: Rel[A, B] : Mapper, A: NeoNode, B: NeoNode] extends L
   = Future {
     val query =
       s"""
-         match (a:${NeoNodeA.label}{ id: "${NeoNodeA.id(c.from)}"})-[c:${label}]->(b:${NeoNodeB.label}{ id: "${NeoNodeB.id(c.to)}"})
+         match (a:${NeoNodeA.label}{ ${NeoNodeA.idColumn}: "${NeoNodeA.id(c.from)}"})-[c:${label}]->(b:${NeoNodeB.label}{ ${NeoNodeB.idColumn}: "${NeoNodeB.id(c.to)}"})
          return c
        """.stripMargin
     Cypher(query)().size == 0
@@ -43,8 +43,8 @@ abstract class NeoRel[C <: Rel[A, B] : Mapper, A: NeoNode, B: NeoNode] extends L
       if (validate) {
         val query =
           s"""
-         match (a:${NeoNodeA.label}{ id: "${NeoNodeA.id(c.from)}"}),
-         (b:${NeoNodeB.label}{ id: "${NeoNodeB.id(c.to)}"})
+         match (a:${NeoNodeA.label}{ ${NeoNodeA.idColumn}: "${NeoNodeA.id(c.from)}"}),
+         (b:${NeoNodeB.label}{ ${NeoNodeB.idColumn}: "${NeoNodeB.id(c.to)}"})
          create (a)-[c:${label} {props}]->(b)
       """.stripMargin
         Cypher(query).on("props" -> MapperC.caseToMap(c)).execute()
@@ -56,8 +56,8 @@ abstract class NeoRel[C <: Rel[A, B] : Mapper, A: NeoNode, B: NeoNode] extends L
   def update(c: C)(implicit connection: Neo4jREST, ec: ExecutionContext): Future[Boolean] = Future {
     val query =
       s"""
-         match (a:${NeoNodeA.label}{ id: "${NeoNodeA.id(c.from)}"}),
-         (b:${NeoNodeB.label}{ id: "${NeoNodeB.id(c.to)}"}),
+         match (a:${NeoNodeA.label}{ ${NeoNodeA.idColumn}: "${NeoNodeA.id(c.from)}"}),
+         (b:${NeoNodeB.label}{ ${NeoNodeB.idColumn}: "${NeoNodeB.id(c.to)}"}),
          (a)-[c:${label}]->(b)
          set c += {props}
       """.stripMargin
@@ -68,8 +68,8 @@ abstract class NeoRel[C <: Rel[A, B] : Mapper, A: NeoNode, B: NeoNode] extends L
   def delete(c: C)(implicit connection: Neo4jREST, ec: ExecutionContext): Future[Boolean] = Future {
     val query =
       s"""
-         match (a:${NeoNodeA.label}{ id: "${NeoNodeA.id(c.from)}"}),
-         (b:${NeoNodeB.label}{ id: "${NeoNodeB.id(c.to)}"}),
+         match (a:${NeoNodeA.label}{ ${NeoNodeA.idColumn}: "${NeoNodeA.id(c.from)}"}),
+         (b:${NeoNodeB.label}{ ${NeoNodeB.idColumn}: "${NeoNodeB.id(c.to)}"}),
          (a)-[c:${label}]->(b)
          delete c
       """.stripMargin

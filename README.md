@@ -12,7 +12,7 @@ resolvers ++= Seq(
 
 libraryDependencies ++= {
   Seq(
-    "com.kreattiewe" %% "neo4s" % "2.1.0"  
+    "com.kreattiewe" %% "neo4s" % "2.1.2"  
     )
 }
 
@@ -24,9 +24,13 @@ Checkout how to use it on the tests directory [here](https://github.com/mrkaspa/
 
 #Version
 
+## 2.2.0
+
+- Added support for an ID Column with a different name
+
 ## 2.1.0
 
-Improved TypeLevel Scala
+- Improved TypeLevel Scala
 
 ## 2.0.0
 
