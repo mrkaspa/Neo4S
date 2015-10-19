@@ -56,7 +56,8 @@ class NodeSpec extends NeoTest with HelperTest {
 
       it("#delete") {
         withOneNode { (node, _) =>
-          Await.result(node.delete(), 2 seconds)
+          val deleted = Await.result(node.delete(), 2 seconds)
+          deleted must be(true)
           val userQuery = Await.result(NeoQuery.findById[MyUser]("1", Some("user")), 5 seconds)
           userQuery must be(None)
         }

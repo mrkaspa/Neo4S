@@ -24,7 +24,7 @@ Checkout how to use it on the tests directory [here](https://github.com/mrkaspa/
 
 #Version
 
-## 2.2.0
+## 2.2.1
 
 - Added support for an ID Column with a different name
 

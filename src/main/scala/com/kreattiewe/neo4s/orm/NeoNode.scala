@@ -23,9 +23,9 @@ abstract class NeoNode[T: Mapper] extends Labelable {
     if (id(t).isEmpty) false
     else {
       val query =
-        s"create (n:${label} {props})".stripMargin
-
-      Cypher(query).on("props" -> MapperT.caseToMap(t)).execute()
+        s"create (n:${label} {props}) return n".stripMargin
+      val rows = Cypher(query).on("props" -> MapperT.caseToMap(t))().size
+      rows > 0
     }
   }
 
@@ -35,8 +35,10 @@ abstract class NeoNode[T: Mapper] extends Labelable {
       s"""
         match (n:${label} { ${idColumn}: "${id(t)}"})
         set n += {props}
+        return n
         """.stripMargin
-    Cypher(query).on("props" -> MapperT.caseToMap(t)).execute()
+    val rows = Cypher(query).on("props" -> MapperT.caseToMap(t))().size
+    rows > 0
   }
 
   /** deletes a node of type T looking for t.id */

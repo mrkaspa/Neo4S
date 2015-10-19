@@ -2,6 +2,10 @@ package com.kreattiewe.neo4s.example
 
 import com.kreattiewe.neo4s.orm.{Mapper, NeoNode, NeoRel, Rel}
 import org.anormcypher.Neo4jREST
+
+import scala.concurrent.Await
+import scala.concurrent.duration._
+
 //this import must go
 import com.kreattiewe.mapper.macros.Mappable
 
@@ -30,16 +34,14 @@ object Main extends App {
   val user = User("Michel Perez", "michel.ingesoft@gmail.com")
   val friend = User("Juan David", "juda@hotmail.com")
 
-  println("saving")
-
   val fut = for {
     _ <- user.save()
     _ <- friend.save()
     saved <- Friendship(user, friend, true).save()
   } yield saved
 
-  fut.map(println)
+  val saved = Await.result(fut, 1 second)
 
-  Thread.sleep(1000)
+  println(saved)
 
 }

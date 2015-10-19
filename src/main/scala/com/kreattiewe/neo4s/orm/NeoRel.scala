@@ -31,7 +31,8 @@ abstract class NeoRel[C <: Rel[A, B] : Mapper, A: NeoNode, B: NeoNode] extends L
          match (a:${NeoNodeA.label}{ ${NeoNodeA.idColumn}: "${NeoNodeA.id(c.from)}"})-[c:${label}]->(b:${NeoNodeB.label}{ ${NeoNodeB.idColumn}: "${NeoNodeB.id(c.to)}"})
          return c
        """.stripMargin
-    Cypher(query)().size == 0
+    val rows = Cypher(query)().size
+    rows == 0
   }
 
 
@@ -46,8 +47,10 @@ abstract class NeoRel[C <: Rel[A, B] : Mapper, A: NeoNode, B: NeoNode] extends L
          match (a:${NeoNodeA.label}{ ${NeoNodeA.idColumn}: "${NeoNodeA.id(c.from)}"}),
          (b:${NeoNodeB.label}{ ${NeoNodeB.idColumn}: "${NeoNodeB.id(c.to)}"})
          create (a)-[c:${label} {props}]->(b)
+         return c
       """.stripMargin
-        Cypher(query).on("props" -> MapperC.caseToMap(c)).execute()
+        val rows = Cypher(query).on("props" -> MapperC.caseToMap(c))().size
+        rows > 0
       }
       else false
     }
@@ -60,8 +63,10 @@ abstract class NeoRel[C <: Rel[A, B] : Mapper, A: NeoNode, B: NeoNode] extends L
          (b:${NeoNodeB.label}{ ${NeoNodeB.idColumn}: "${NeoNodeB.id(c.to)}"}),
          (a)-[c:${label}]->(b)
          set c += {props}
+         return c
       """.stripMargin
-    Cypher(query).on("props" -> MapperC.caseToMap(c)).execute()
+    val rows = Cypher(query).on("props" -> MapperC.caseToMap(c))().size
+    rows > 0
   }
 
   /** deletes the relationship of type C */
