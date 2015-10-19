@@ -12,7 +12,7 @@ resolvers ++= Seq(
 
 libraryDependencies ++= {
   Seq(
-    "com.kreattiewe" %% "neo4s" % "2.1.2"  
+    "com.kreattiewe" %% "neo4s" % "2.2.1"  
     )
 }
 
