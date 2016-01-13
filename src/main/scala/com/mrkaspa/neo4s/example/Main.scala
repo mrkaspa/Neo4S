@@ -1,6 +1,7 @@
-package com.kreattiewe.neo4s.example
+package com.mrkaspa.neo4s.example
 
-import com.kreattiewe.neo4s.orm.{Mapper, NeoNode, NeoRel, Rel}
+import com.mrkaspa.neo4s.orm.NeoNode
+import com.mrkaspa.neo4s.orm._
 import org.anormcypher.Neo4jREST
 
 import scala.concurrent.Await
@@ -14,8 +15,8 @@ import com.kreattiewe.mapper.macros.Mappable
  */
 object Main extends App {
 
-  import com.kreattiewe.neo4s.orm.NeoNodeOperations._
-  import com.kreattiewe.neo4s.orm.NeoRelOperations._
+  import NeoNodeOperations._
+  import NeoRelOperations._
 
   import scala.concurrent.ExecutionContext.Implicits.global
 

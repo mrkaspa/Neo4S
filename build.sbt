@@ -1,10 +1,10 @@
 import SonatypeKeys._
 
 // Your project orgnization (package name)
-organization := "com.kreattiewe"
+organization := "com.mrkaspa"
 
 // Your profile name of the sonatype account. The default is the same with the organization
-sonatypeProfileName := "com.kreattiewe"
+sonatypeProfileName := "com.mrkaspa"
 
 name := """neo4s"""
 

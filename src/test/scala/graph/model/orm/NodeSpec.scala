@@ -1,14 +1,14 @@
 package graph.model.orm
 
-import com.kreattiewe.neo4s.orm.NeoQuery
+import com.mrkaspa.neo4s.orm.{NeoQuery, NeoNodeOperations, NeoRelOperations}
 import graph.test.{HelperTest, NeoTest}
 import org.anormcypher.Cypher
 import org.anormcypher.CypherParser._
 import scala.concurrent.Await
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration._
-import com.kreattiewe.neo4s.orm.NeoNodeOperations._
-import com.kreattiewe.neo4s.orm.NeoRelOperations._
+import NeoNodeOperations._
+import NeoRelOperations._
 import graph.model.orm.UserNodes._
 import graph.model.orm.UserRels._
 import graph.model.orm.UserMappers._

@@ -1,4 +1,4 @@
-package com.kreattiewe.neo4s.orm
+package com.mrkaspa.neo4s.orm
 
 import com.kreattiewe.mapper.macros.Mappable
 

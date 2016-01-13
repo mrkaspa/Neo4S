@@ -1,4 +1,4 @@
-package com.kreattiewe.neo4s.orm
+package com.mrkaspa.neo4s.orm
 
 import org.anormcypher.CypherParser._
 import org.anormcypher.{Cypher, Neo4jREST}

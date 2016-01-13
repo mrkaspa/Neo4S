@@ -1,14 +1,14 @@
 package graph.test
 
-import com.kreattiewe.neo4s.orm.NeoIndex
+import com.mrkaspa.neo4s.orm.{NeoNodeOperations, NeoIndex, NeoRelOperations}
 import graph.model.orm._
 
 import scala.concurrent.Await
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration._
 
-import com.kreattiewe.neo4s.orm.NeoNodeOperations._
-import com.kreattiewe.neo4s.orm.NeoRelOperations._
+import NeoNodeOperations._
+import NeoRelOperations._
 import graph.model.orm.UserNodes._
 import graph.model.orm.UserRels._
 

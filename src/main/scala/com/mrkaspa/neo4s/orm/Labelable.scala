@@ -1,4 +1,4 @@
-package com.kreattiewe.neo4s.orm
+package com.mrkaspa.neo4s.orm
 
 /**
  * Created by michelperez on 4/29/15.
