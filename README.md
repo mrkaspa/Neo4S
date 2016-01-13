@@ -12,6 +12,23 @@ resolvers ++= Seq(
 
 libraryDependencies ++= {
   Seq(
+    "com.mrkaspa" %% "neo4s" % "2.2.2"
+    )
+}
+
+```
+
+# Versions 2.2.1 and lower
+
+# build.sbt
+
+```scala
+resolvers ++= Seq(
+  "Sonatype OSS Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots"
+)
+
+libraryDependencies ++= {
+  Seq(
     "com.kreattiewe" %% "neo4s" % "2.2.1"  
     )
 }
@@ -24,9 +41,26 @@ Checkout how to use it on the tests directory [here](https://github.com/mrkaspa/
 
 #Version
 
-## 2.2.1
+# build.sbt
+
+```scala
+resolvers ++= Seq(
+  "Sonatype OSS Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots"
+)
+
+libraryDependencies ++= {
+  Seq(
+    "com.kreattiewe" %% "neo4s" % "2.2.1"
+    )
+}
+
+```
 
 - Added support for an ID Column with a different name
+
+## 2.2.2
+
+- Changed root package
 
 ## 2.1.0
 
